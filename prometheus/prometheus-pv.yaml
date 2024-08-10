@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-server
+  labels:
+    type: pro-local
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 9Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /usr/share/prometheus/data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: deploy
+          operator: In
+          values:
+          - jenkins

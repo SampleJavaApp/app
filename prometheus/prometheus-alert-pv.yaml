@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-alert-pv
+  labels:
+    type: pro-local
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /usr/share/prometheus-alert/data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: deploy
+          operator: In
+          values:
+          - jenkins
