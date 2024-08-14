@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-app
+  labels:
+    app: java-app
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: java-app
+  template:
+    metadata:
+      labels:
+        app: java-app
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - java-app
+              topologyKey: "kubernetes.io/hostname"  # Distribute pods across nodes
+      containers:
+      - name: java-app
+        image: egeuzma1/java-app:v1
+        ports:
+        - containerPort: 9001
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /api/foos?val=egeuzma  # Adjust this path to your application's health endpoint
+            port: 9001
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /api/foos?val=egeuzma  # Adjust this path to your application's health endpoint
+            port: 9001
+          initialDelaySeconds: 15
+          periodSeconds: 20
