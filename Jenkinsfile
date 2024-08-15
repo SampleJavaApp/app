@@ -56,7 +56,7 @@ spec:
                 --context `pwd` \
                 --dockerfile `pwd`/Dockerfile \
                 --verbosity debug \
-                --destination egeuzma/java-app:v3
+                --destination egeuzma1/java-app:v3
           '''
         }
       }
