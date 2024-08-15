@@ -42,6 +42,10 @@ pipeline {
                                 # Install Ansible and the Kubernetes collection
                                 pip install --no-cache-dir ansible
                                 ansible-galaxy collection install kubernetes.core
+
+                                ansible --version
+                                ansible-galaxy collection list
+
                                 '''
                             }
                         }
