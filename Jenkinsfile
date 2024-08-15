@@ -19,14 +19,14 @@ spec:
     - /busybox/cat
     tty: true
     volumeMounts:
-      - name: ege-secret
+      - name: dockerhub-secret
         mountPath: /kaniko/.docker
   volumes:
-  - name: ege-secret
+  - name: dockerhub-secret
     projected:
       sources:
       - secret:
-          name: ege-secret
+          name: dockerhub-secret
           items:
             - key: .dockerconfigjson
               path: config.json
