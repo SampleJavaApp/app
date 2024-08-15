@@ -1,0 +1,21 @@
+# defaults/main.yaml
+
+# Default values for the Ingress resource
+ingress_name: java-app-ingress
+ingress_host_name: java-app-ege.test
+ingress_http_path: /
+service_name: java-app-service
+service_port_number: 80
+service_target_port_number: 9001
+match_label: java-app
+deployment_name: java-app
+min_replica: 4
+max_replica: 6
+cpu_utilization: 70
+memory_utilization: 70
+container_name: java-app
+image_name: egeuzma1/java-app:v1
+request_memory: "512Mi"
+limit_memory: "1Gi"
+request_cpu: "100m"
+limit_cpu: "500m"

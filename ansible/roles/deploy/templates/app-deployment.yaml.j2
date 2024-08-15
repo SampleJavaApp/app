@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ deployment_name }}
+  namespace: {{ app_namespace }}
+  labels:
+    app: {{ match_label }}
+spec:
+  replicas: {{ min_replica }}
+  selector:
+    matchLabels:
+      app: {{ match_label }}
+  template:
+    metadata:
+      labels:
+        app: {{ match_label }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{ match_label }}
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: {{ container_name }}
+        image: {{ image_name }}
+        ports:
+        - containerPort: {{ service_target_port_number }}
+        resources:
+          requests:
+            memory: {{ request_memory }}
+            cpu: {{ request_cpu }}
+          limits:
+            memory: {{ limit_memory }}
+            cpu: {{ limit_cpu }}
+        readinessProbe:
+          httpGet:
+            path: /api/foos?val=egeuzma
+            port: {{ service_target_port_number }}
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /api/foos?val=egeuzma
+            port: {{ service_target_port_number }}
+          initialDelaySeconds: 15
+          periodSeconds: 20

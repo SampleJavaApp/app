@@ -25,18 +25,22 @@ pipeline {
         //                 --context `pwd` \
         //                 --dockerfile `pwd`/Dockerfile \
         //                 --verbosity debug \
-        //                 --destination egeuzma1/java-app:v${BUILD_NUMBER}
+        //                 --destination ${DOCKERHUB_REPO}:v${BUILD_NUMBER}
         //         '''
         //         }
         //     }
         // }
-        stage('Install Ansible and Deploy') {
+        stage('Deploy Java App with Ansible') {
             steps {
                 script {
                     podTemplate(label: 'python-ansible-agent', containers: [
                         containerTemplate(name: 'python', image: 'python:3.9', ttyEnabled: true, command: 'cat')
                     ]) {
                         node('python-ansible-agent') {
+                            withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
+                                git branch: "${GIT_BRANCH}",
+                                    url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
+                            }
                             container('python') {
                                 sh '''
                                 # Install Ansible and the Kubernetes collection
