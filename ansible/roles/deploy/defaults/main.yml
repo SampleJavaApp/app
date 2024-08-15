@@ -1,6 +1,7 @@
 # defaults/main.yaml
 
-# Default values for the Ingress resource
+# Default values for the templates resource
+app_namespace: java-app
 ingress_name: java-app-ingress
 ingress_host_name: java-app-ege.test
 ingress_http_path: /
