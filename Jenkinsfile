@@ -4,7 +4,7 @@ pipeline {
     }
     environment {
         DOCKERHUB_REPO = 'egeuzma1/java-app'
-        GIT_REPO_URL = 'https://github.com/Lastroke/app.git'
+        GIT_REPO_URL = 'github.com/Lastroke/app.git'
         GIT_BRANCH = 'develop'
     }
     stages {
