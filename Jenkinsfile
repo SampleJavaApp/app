@@ -22,10 +22,8 @@ spec:
         mountPath: /kaniko/.docker
   volumes:
   - name: jenkins-docker-cfg
-    projected:
-      sources:
-      - secret:
-          name: docker-credentials (1)
+    secret:
+          name: dockerhub-secret
           items:
             - key: .dockerconfigjson
               path: config.json
