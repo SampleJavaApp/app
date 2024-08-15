@@ -32,22 +32,36 @@ spec:
 """
     }
   }
+  environment {
+        DOCKERHUB_REPO = 'egeuzma1/java-app'
+        GIT_REPO_URL = 'github.com/Lastroke/app.git'
+        GIT_BRANCH = 'develop'
+    }
   stages {
+    stage('Checkout') {
+        steps {
+            script {
+                try {
+                    withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
+                        git branch: "${GIT_BRANCH}",
+                            url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
+                    }
+                } catch (Exception e) {
+                    currentBuild.result = 'FAILURE'
+                    echo "Error during Git checkout: ${e.message}"
+                    error "Stopping pipeline due to checkout failure."
+                }
+            }  
+        }
+    }
     stage('Build with Kaniko') {
       environment {
         PATH = "/busybox:/kaniko:$PATH"
       }
       steps {
         container(name: 'kaniko', shell: '/busybox/sh') {
-
-          writeFile file: "Dockerfile", text: """
-            FROM jenkins/agent
-            MAINTAINER CloudBees Support Team <support@cloudbees.com>
-            RUN mkdir /home/jenkins/.m2
-          """
-
           sh '''#!/busybox/sh
-            /kaniko/executor --context `pwd` --verbosity debug --destination cloudbees/jnlp-from-kaniko:latest
+            /kaniko/executor --context `pwd` --verbosity debug --destination egeuzma/java-app:v3
           '''
         }
       }
