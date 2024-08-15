@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label 'kaniko'
+        label 'jenkins-jenkins-agent'
     }
     environment {
         DOCKERHUB_REPO = 'egeuzma1/java-app'
@@ -24,21 +24,21 @@ pipeline {
                 }  
             }
         }
-        stage('Build and Push Docker Image') {
-            steps {
-                container('kaniko') {
-                    script {
-                        sh '''
-                        /kaniko/executor \
-                            --context `pwd` \
-                            --dockerfile `pwd`/Dockerfile \
-                            --destination=${DOCKERHUB_REPO}:v$BUILD_NUMBER \
-                            --cleanup
-                        '''
-                    }
-                }
-            }
-        }
+        // stage('Build and Push Docker Image') {
+        //     steps {
+        //         container('kaniko') {
+        //             script {
+        //                 sh '''
+        //                 /kaniko/executor \
+        //                     --context `pwd` \
+        //                     --dockerfile `pwd`/Dockerfile \
+        //                     --destination=${DOCKERHUB_REPO}:v$BUILD_NUMBER \
+        //                     --cleanup
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
     }
     post {
         success {
