@@ -6,6 +6,7 @@ pipeline {
 kind: Pod
 metadata:
   name: kaniko
+  namespace: jenkins-helm
 spec:
   containers:
   - name: jnlp
@@ -61,7 +62,8 @@ spec:
       steps {
         container(name: 'kaniko', shell: '/busybox/sh') {
           sh '''#!/busybox/sh
-            /kaniko/executor --context `pwd` --verbosity debug --destination egeuzma/java-app:v3
+            cat /kaniko/.docker/config.json
+            /kaniko/executor --context `pwd` --dockerfile `pwd`/Dockerfile --verbosity debug --destination egeuzma/java-app:v3
           '''
         }
       }
