@@ -1,36 +1,37 @@
 pipeline {
     agent {
-        kubernetes {
-        label 'example-kaniko-volumes'
-        yaml """
-            kind: Pod
-            metadata:
-            name: kaniko
-            namespace: jenkins-helm
-            spec:
-            containers:
-            - name: jnlp
-                workingDir: /home/jenkins
-            - name: kaniko
-                workingDir: /home/jenkins
-                image: gcr.io/kaniko-project/executor:debug
-                imagePullPolicy: Always
-                command:
-                - /busybox/cat
-                tty: true
-                volumeMounts:
-                - name: jenkins-docker-cfg
-                    mountPath: /kaniko/.docker
-            volumes:
-            - name: jenkins-docker-cfg
-                secret:
-                    name: dockerhub-secret
-                    items:
-                    - key: .dockerconfigjson
-                        path: config.json
-        """
-        }
+    kubernetes {
+      label 'example-kaniko-volumes'
+      yaml """
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+  - name: jnlp
+    workingDir: /home/jenkins
+  - name: kaniko
+    workingDir: /home/jenkins
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: Always
+    command:
+    - /busybox/cat
+    tty: true
+    volumeMounts:
+      - name: jenkins-docker-cfg
+        mountPath: /kaniko/.docker
+  volumes:
+  - name: jenkins-docker-cfg
+    projected:
+      sources:
+      - secret:
+          name: docker-credentials (1)
+          items:
+            - key: .dockerconfigjson
+              path: config.json
+"""
     }
+  }
     environment {
         DOCKERHUB_REPO = 'egeuzma1/java-app'
         GIT_REPO_URL = 'github.com/Lastroke/app.git'
