@@ -24,21 +24,55 @@ pipeline {
                 }  
             }
         }
-        stage('Build and Push Docker Image') {
-            steps {
-                container('kaniko') {
-                    script {
-                        sh '''
-                        /kaniko/executor \
-                            --context `pwd` \
-                            --dockerfile `pwd`/Dockerfile \
-                            --destination=${DOCKERHUB_REPO}:v$BUILD_NUMBER \
-                            --cleanup
-                        '''
+        podTemplate(yaml: '''
+              kind: Pod
+              spec:
+                containers:
+                - name: kaniko
+                  image: gcr.io/kaniko-project/executor:v1.6.0-debug
+                  imagePullPolicy: Always
+                  command:
+                  - sleep
+                  args:
+                  - 99d
+                  volumeMounts:
+                    - name: dockerhub-secret
+                      mountPath: /kaniko/.docker
+                volumes:
+                - name: dockerhub-secret
+                  projected:
+                    sources:
+                    - secret:
+                        name: dockerhub-secret
+                        items:
+                          - key: .dockerconfigjson
+                            path: config.json
+        '''
+            ) {
+                node(POD_LABEL) {
+                    stage('Build with Kaniko') {
+                        git 'https://github.com/jenkinsci/docker-inbound-agent.git'
+                        container('kaniko') {
+                            sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --skip-tls-verify --cache=true --destination=mydockerregistry:5000/myorg/myimage'
+                        }
                     }
                 }
-            }
         }
+        // stage('Build and Push Docker Image') {
+        //     steps {
+        //         container('kaniko') {
+        //             script {
+        //                 sh '''
+        //                 /kaniko/executor \
+        //                     --context `pwd` \
+        //                     --dockerfile `pwd`/Dockerfile \
+        //                     --destination=${DOCKERHUB_REPO}:v$BUILD_NUMBER \
+        //                     --cleanup
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
     }
     post {
         success {
