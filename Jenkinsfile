@@ -10,16 +10,18 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                try {
-                    withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
-                        git branch: "${GIT_BRANCH}",
-                            url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
+                script {
+                    try {
+                        withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
+                            git branch: "${GIT_BRANCH}",
+                                url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        echo "Error during Git checkout: ${e.message}"
+                        error "Stopping pipeline due to checkout failure."
                     }
-                } catch (Exception e) {
-                    currentBuild.result = 'FAILURE'
-                    echo "Error during Git checkout: ${e.message}"
-                    error "Stopping pipeline due to checkout failure."
-                }
+                }  
             }
         }
         stage('Build and Push Docker Image') {
