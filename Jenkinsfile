@@ -39,31 +39,39 @@ spec:
         GIT_BRANCH = 'develop'
     }
   stages {
-    stage('Checkout') {
-        steps {
-            script {
-                try {
-                    withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
-                        git branch: "${GIT_BRANCH}",
-                            url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
-                    }
-                } catch (Exception e) {
-                    currentBuild.result = 'FAILURE'
-                    echo "Error during Git checkout: ${e.message}"
-                    error "Stopping pipeline due to checkout failure."
-                }
-            }  
-        }
-    }
+    // stage('Checkout') {
+    //     steps {
+    //         script {
+    //             try {
+    //                 withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
+    //                     git branch: "${GIT_BRANCH}",
+    //                         url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
+    //                 }
+    //             } catch (Exception e) {
+    //                 currentBuild.result = 'FAILURE'
+    //                 echo "Error during Git checkout: ${e.message}"
+    //                 error "Stopping pipeline due to checkout failure."
+    //             }
+    //         }  
+    //     }
+    // }
     stage('Build with Kaniko') {
       environment {
         PATH = "/busybox:/kaniko:$PATH"
       }
       steps {
+        withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
+            git branch: "${GIT_BRANCH}",
+                url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
+        }
         container(name: 'kaniko', shell: '/busybox/sh') {
           sh '''#!/busybox/sh
             cat /kaniko/.docker/config.json
-            /kaniko/executor --context `pwd` --dockerfile `pwd`/Dockerfile --verbosity debug --destination egeuzma/java-app:v3
+            /kaniko/executor \
+                --context `pwd` \
+                --dockerfile `pwd`/Dockerfile \
+                --verbosity debug \
+                --destination egeuzma/java-app:v3
           '''
         }
       }
