@@ -1,5 +1,5 @@
 pipeline {
-    agent {
+  agent {
     kubernetes {
       label 'example-kaniko-volumes'
       yaml """
@@ -18,40 +18,21 @@ spec:
     - /busybox/cat
     tty: true
     volumeMounts:
-      - name: dockerhub-secret
+      - name: jenkins-docker-cfg
         mountPath: /kaniko/.docker
   volumes:
-  - name: dockerhub-secret
-    secret:
-          name: dockerhub-secret
+  - name: jenkins-docker-cfg
+    projected:
+      sources:
+      - secret:
+          name: docker-credentials (1)
           items:
             - key: .dockerconfigjson
               path: config.json
 """
     }
   }
-    environment {
-        DOCKERHUB_REPO = 'egeuzma1/java-app'
-        GIT_REPO_URL = 'github.com/Lastroke/app.git'
-        GIT_BRANCH = 'develop'
-    }
   stages {
-    stage('Checkout') {
-        steps {
-            script {
-                try {
-                    withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
-                        git branch: "${GIT_BRANCH}",
-                            url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
-                    }
-                } catch (Exception e) {
-                    currentBuild.result = 'FAILURE'
-                    echo "Error during Git checkout: ${e.message}"
-                    error "Stopping pipeline due to checkout failure."
-                }
-            }  
-        }
-    }
     stage('Build with Kaniko') {
       environment {
         PATH = "/busybox:/kaniko:$PATH"
@@ -59,8 +40,14 @@ spec:
       steps {
         container(name: 'kaniko', shell: '/busybox/sh') {
 
+          writeFile file: "Dockerfile", text: """
+            FROM jenkins/agent
+            MAINTAINER CloudBees Support Team <support@cloudbees.com>
+            RUN mkdir /home/jenkins/.m2
+          """
+
           sh '''#!/busybox/sh
-            /kaniko/executor --context `pwd` --dockerfile `pwd`/Dockerfile --destination=${DOCKERHUB_REPO}:v$BUILD_NUMBER
+            /kaniko/executor --context `pwd` --verbosity debug --destination cloudbees/jnlp-from-kaniko:latest
           '''
         }
       }
