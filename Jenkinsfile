@@ -66,6 +66,7 @@ spec:
         }
         container(name: 'kaniko', shell: '/busybox/sh') {
           sh '''#!/busybox/sh
+            ls
             cat /kaniko/.docker/config.json
             /kaniko/executor \
                 --context `pwd` \
