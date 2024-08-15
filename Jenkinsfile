@@ -54,7 +54,8 @@ pipeline {
                                     # Use the kubeconfig file for Ansible Kubernetes tasks
                                     export KUBECONFIG=${KUBECONFIG}
                                     
-                                    echo "${KUBECONFIG}"
+                                    cd ansible
+                                    ansible-playbook -e kubeconfig=${KUBECONFIG} playbook.yml
                                     '''
                                 }
                             }
