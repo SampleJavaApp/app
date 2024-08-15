@@ -18,15 +18,15 @@ spec:
     - /busybox/cat
     tty: true
     volumeMounts:
-      - name: jenkins-docker-cfg
+      - name: dockerhub-secret
         mountPath: /kaniko/.docker
   volumes:
-  - name: jenkins-docker-cfg
+  - name: dockerhub-secret
     secret:
-          name: dockerhub-secret
-          items:
-            - key: .dockerconfigjson
-              path: config.json
+        name: dockerhub-secret
+        items:
+        - key: .dockerconfigjson
+            path: config.json
 """
     }
   }
