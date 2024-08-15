@@ -37,20 +37,26 @@ pipeline {
                         containerTemplate(name: 'python', image: 'python:3.9', ttyEnabled: true, command: 'cat')
                     ]) {
                         node('python-ansible-agent') {
-                            withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
+                            withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD'),
+                                            file(credentialsId: 'ansible-sa-kubeconfig', variable: 'KUBECONFIG')]) {
                                 git branch: "${GIT_BRANCH}",
                                     url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
-                            }
-                            container('python') {
-                                sh '''
-                                # Install Ansible and the Kubernetes collection
-                                pip install --no-cache-dir ansible
-                                ansible-galaxy collection install kubernetes.core
 
-                                ansible --version
-                                ansible-galaxy collection list
+                                container('python') {
+                                    sh '''
+                                    # Install Ansible and the Kubernetes collection
+                                    pip install --no-cache-dir ansible
+                                    ansible-galaxy collection install kubernetes.core
 
-                                '''
+                                    ansible --version
+                                    ansible-galaxy collection list
+
+                                    # Use the kubeconfig file for Ansible Kubernetes tasks
+                                    export KUBECONFIG=${KUBECONFIG}
+                                    
+                                    echo "${KUBECONFIG}"
+                                    '''
+                                }
                             }
                         }
                     }
