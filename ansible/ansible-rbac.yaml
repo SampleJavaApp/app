@@ -11,10 +11,10 @@ kind: ClusterRole
 metadata:
   name: ansible-cluster-role
 rules:
-  - apiGroups: [""]
+  - apiGroups: ["networking.k8s.io"]
     resources: ["ingresses"]
     verbs: ["get", "list", "watch", "create", "update", "delete"]
-  - apiGroups: [""]
+  - apiGroups: ["apps"]
     resources: ["deployments"]
     verbs: ["create","delete","get","list","patch","update","watch"]
   - apiGroups: [""]
@@ -26,7 +26,7 @@ rules:
   - apiGroups: [""]
     resources: ["secrets"]
     verbs: ["get"]
-  - apiGroups: [""]
+  - apiGroups: ["autoscaling"]
     resources: ["horizontalpodautoscalers"]
     verbs: ["get", "list", "watch", "create", "update", "delete"]
 

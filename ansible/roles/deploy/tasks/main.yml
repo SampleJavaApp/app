@@ -5,6 +5,12 @@
     definition: "{{ lookup('template', './app-service.yaml.j2') }}"
     state: present
 
+- name: Apply java-app-deployment
+  kubernetes.core.k8s: 
+    kubeconfig: "{{ kubeconfig }}"
+    definition: "{{ lookup('template', './app-deployment.yaml.j2') }}"
+    state: present
+
 - name: Apply java-app-ingress
   kubernetes.core.k8s: 
     kubeconfig: "{{ kubeconfig }}"
@@ -15,10 +21,4 @@
   kubernetes.core.k8s: 
     kubeconfig: "{{ kubeconfig }}"
     definition: "{{ lookup('template', './app-hpa.yaml.j2') }}"
-    state: present
-
-- name: Apply java-app-deployment
-  kubernetes.core.k8s: 
-    kubeconfig: "{{ kubeconfig }}"
-    definition: "{{ lookup('template', './app-deployment.yaml.j2') }}"
     state: present
