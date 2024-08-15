@@ -23,10 +23,10 @@ spec:
   volumes:
   - name: dockerhub-secret
     secret:
-          name: dockerhub-secret
-          items:
-            - key: .dockerconfigjson
-              path: config.json
+        name: dockerhub-secret
+        items:
+        - key: .dockerconfigjson
+          path: config.json
 """
     }
   }
