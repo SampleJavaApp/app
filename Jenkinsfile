@@ -19,14 +19,14 @@ spec:
     - /busybox/cat
     tty: true
     volumeMounts:
-      - name: dockerhub-secret
+      - name: ege-secret
         mountPath: /kaniko/.docker
   volumes:
-  - name: dockerhub-secret
+  - name: ege-secret
     projected:
       sources:
       - secret:
-          name: dockerhub-secret
+          name: ege-secret
           items:
             - key: .dockerconfigjson
               path: config.json
@@ -39,22 +39,6 @@ spec:
         GIT_BRANCH = 'develop'
     }
   stages {
-    // stage('Checkout') {
-    //     steps {
-    //         script {
-    //             try {
-    //                 withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
-    //                     git branch: "${GIT_BRANCH}",
-    //                         url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
-    //                 }
-    //             } catch (Exception e) {
-    //                 currentBuild.result = 'FAILURE'
-    //                 echo "Error during Git checkout: ${e.message}"
-    //                 error "Stopping pipeline due to checkout failure."
-    //             }
-    //         }  
-    //     }
-    // }
     stage('Build with Kaniko') {
       environment {
         PATH = "/busybox:/kaniko:$PATH"
