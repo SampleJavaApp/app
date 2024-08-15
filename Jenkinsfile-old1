@@ -22,11 +22,13 @@ spec:
         mountPath: /kaniko/.docker
   volumes:
   - name: dockerhub-secret
-    secret:
-        name: dockerhub-secret
-        items:
-        - key: .dockerconfigjson
-          path: config.json
+    projected:
+      sources:
+      - secret:
+          name: dockerhub-secret
+          items:
+            - key: .dockerconfigjson
+              path: config.json
 """
     }
   }
