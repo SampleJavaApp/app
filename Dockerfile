@@ -6,6 +6,7 @@ WORKDIR /app
 COPY . .
 
 # Build the application using the Maven wrapper. You can check why i choose this option in the documentation.
+RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 
 # Stage 2: Create the runtime image
