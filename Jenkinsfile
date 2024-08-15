@@ -25,7 +25,7 @@ pipeline {
                         --context `pwd` \
                         --dockerfile `pwd`/Dockerfile \
                         --verbosity debug \
-                        --destination egeuzma1/java-app:v4
+                        --destination egeuzma1/java-app:v${BUILD_NUMBER}
                 '''
                 }
             }

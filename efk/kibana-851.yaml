@@ -81,7 +81,6 @@ kibanaConfig:
     elasticsearch.hosts: ["http://elasticsearch-master:9200"]
     elasticsearch.serviceAccountToken: "${ELASTICSEARCH_SERVICE_ACCOUNT_TOKEN}"
     elasticsearch.password: "${ELASTICSEARCH_PASSWORD}"
-    xpack.security.enabled: true
 
 # If Pod Security Policy in use it may be required to specify security context as well as service account
 
@@ -186,3 +185,4 @@ lifecycle: {}
 # postStart:
 #   exec:
 #     command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
+
