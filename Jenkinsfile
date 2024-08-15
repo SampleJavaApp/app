@@ -45,7 +45,7 @@ pipeline {
                                 container('python') {
                                     sh '''
                                     # Install Ansible and the Kubernetes collection
-                                    pip install --no-cache-dir ansible
+                                    pip install --no-cache-dir ansible kubernetes>=24.2.0 PyYAML>=3.11 jsonpatch
                                     ansible-galaxy collection install kubernetes.core
 
                                     ansible --version
