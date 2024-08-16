@@ -355,3 +355,4 @@ networkPolicy:
 
 tests:
   enabled: true
+

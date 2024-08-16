@@ -8,42 +8,42 @@ pipeline {
         GIT_BRANCH = 'develop'
     }
     stages {
-        // stage('Linting') {
-        //     steps {
-        //         script {
-        //             podTemplate(label: 'linting-agent', containers: [
-        //                 containerTemplate(name: 'lint', image: 'python:3.9', ttyEnabled: true, command: 'cat')
-        //             ]) {
-        //                 node('linting-agent') {
-        //                     withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
-        //                             git branch: "${GIT_BRANCH}",
-        //                                 url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
-        //                         }
-        //                         container('lint') {
-        //                             sh '''
-        //                             ls
-        //                             # Install linting tools
-        //                             pip install --no-cache-dir yamllint
+        stage('Linting') {
+            steps {
+                script {
+                    podTemplate(label: 'linting-agent', containers: [
+                        containerTemplate(name: 'lint', image: 'python:3.9', ttyEnabled: true, command: 'cat')
+                    ]) {
+                        node('linting-agent') {
+                            withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
+                                    git branch: "${GIT_BRANCH}",
+                                        url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
+                                }
+                                container('lint') {
+                                    sh '''
+                                    ls
+                                    # Install linting tools
+                                    pip install --no-cache-dir yamllint
 
-        //                             # Install Hadolint
-        //                             curl -L https://github.com/hadolint/hadolint/releases/download/v2.11.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
-        //                             chmod +x /usr/local/bin/hadolint
+                                    # Install Hadolint
+                                    curl -L https://github.com/hadolint/hadolint/releases/download/v2.11.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
+                                    chmod +x /usr/local/bin/hadolint
 
-        //                             # Run Hadolint
-        //                             DOCKERFILES=$(find . -type f -wholename "*Dockerfile" | xargs -n1 | tr '\n' ' ')
-        //                             hadolint $DOCKERFILES || true
+                                    # Run Hadolint
+                                    DOCKERFILES=$(find . -type f -wholename "*Dockerfile" | xargs -n1 | tr '\n' ' ')
+                                    hadolint $DOCKERFILES || true
 
-        //                             # Run Yamllint
-        //                             yamllint . || true
+                                    # Run Yamllint
+                                    yamllint . || true
 
-        //                             '''
+                                    '''
         
-        //                         }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+                                }
+                        }
+                    }
+                }
+            }
+        }
         stage('Build with Kaniko') {
             environment {
                 PATH = "/busybox:/kaniko:$PATH"
@@ -103,10 +103,10 @@ pipeline {
     }
     post {
         success {
-            echo 'Docker image built and pushed successfully.'
+            echo 'Docker image built and pushed successfully. Java App deployed to K8S successfully.'
         }
         failure {
-            echo 'Docker image build or push failed.'
+            echo 'Docker image build or push failed. Java App is not deployed to K8S successfully.'
         }
     }
 }

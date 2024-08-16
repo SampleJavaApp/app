@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: java-app
+  namespace: java-app
   labels:
     app: java-app
 spec:
@@ -28,7 +29,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: java-app
-        image: egeuzma1/java-app:v1
+        image: egeuzma1/java-app:v55
         ports:
         - containerPort: 9001
         resources:
