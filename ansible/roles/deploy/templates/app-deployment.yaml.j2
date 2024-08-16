@@ -51,3 +51,9 @@ spec:
             port: {{ service_target_port_number }}
           initialDelaySeconds: 15
           periodSeconds: 20
+        volumeMounts:
+        - name: log-volume
+          mountPath: /var/log/egejavaapp
+      volumes:
+      - name: log-volume
+        emptyDir: {}

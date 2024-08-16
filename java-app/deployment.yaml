@@ -50,3 +50,10 @@ spec:
             port: 9001
           initialDelaySeconds: 15
           periodSeconds: 20
+        volumeMounts:
+        - name: log-volume
+          mountPath: /var/log/egejavaapp
+      volumes:
+      - name: log-volume
+        persistentVolumeClaim:
+          claimName: egejavaapp-log-pvc

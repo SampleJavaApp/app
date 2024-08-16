@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Define the RollingFileAppender for JSON logs -->
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/log/egejavaapp/application.json</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Daily rollover -->
+            <fileNamePattern>/var/log/egejavaapp/application.%d{yyyy-MM-dd}.json</fileNamePattern>
+            <!-- Keep 30 days' worth of logs -->
+            <maxHistory>30</maxHistory>
+            <!-- Set the maximum size of the log file -->
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <!-- Encode logs in JSON format -->
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+    </appender>
+
+    <!-- Define the asynchronous appender -->
+    <appender name="ASYNC_JSON_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="JSON_FILE"/>
+    </appender>
+
+    <!-- Set the root logger level and asynchronous appender -->
+    <root level="INFO">
+        <appender-ref ref="ASYNC_JSON_FILE"/>
+    </root>
+
+</configuration>
