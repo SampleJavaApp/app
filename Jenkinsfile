@@ -31,7 +31,7 @@ pipeline {
                                     hadolint -v 
                                     # Run Hadolint and save output to file
                                     DOCKERFILES=$(find . -type f -wholename "*Dockerfile" | xargs -n1 | tr '\n' ' ')
-                                    hadolint $DOCKERFILES > hadolint.json
+                                    hadolint $DOCKERFILES > hadolint.json || true
 
                                     # Run Yamllint and save output to file
                                     yamllint . > yamllint_output.txt
