@@ -24,7 +24,7 @@ pipeline {
                                     # Install Hadolint
                                     curl -L https://github.com/hadolint/hadolint/releases/download/v2.11.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
                                     chmod +x /usr/local/bin/hadolint
-
+                                    hadolint -v 
                                     # Run Hadolint and save output to file
                                     find . -type f -name "Dockerfile" | xargs hadolint > hadolint.txt
 
