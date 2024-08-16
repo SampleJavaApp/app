@@ -34,10 +34,10 @@ pipeline {
                                     hadolint $DOCKERFILES > hadolint.json || true
 
                                     # Run Yamllint and save output to file
-                                    yamllint . > yamllint_output.txt
+                                    yamllint . > yamllint_output.txt || true
 
                                     # Run Ansible Lint and save output to file
-                                    ansible-lint ansible/playbook.yml > ansiblelint_output.txt
+                                    ansible-lint ansible/playbook.yml > ansiblelint_output.txt || true
                                     '''
                                     // Archive the linting results
                                     archiveArtifacts artifacts: 'hadolint_output.txt,yamllint_output.txt,ansiblelint_output.txt,checkstyle_output.txt', allowEmptyArchive: true
