@@ -26,8 +26,7 @@ pipeline {
                                     chmod +x /usr/local/bin/hadolint
 
                                     # Run Hadolint and save output to file
-                                    DOCKERFILES=$(find . -type f -wholename "*Dockerfile" | xargs -n1 | tr '\n' ' ')
-                                    hadolint $DOCKERFILES > hadolint.json
+                                    find . -type f -wholename "Dockerfile" -exec hadolint {} \; > hadolint.json
 
                                     # Run Yamllint and save output to file
                                     yamllint . > yamllint_output.txt
