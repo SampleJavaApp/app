@@ -380,6 +380,16 @@ config:
   inputs: |
     [INPUT]
         Name              tail
+        Tag               kube.*
+        Path              /var/log/containers/*.log
+        Parser            docker
+        DB                /var/log/flb_kube.db
+        Mem_Buf_Limit     5MB
+        Skip_Long_Lines   On
+        Refresh_Interval  10
+
+    [INPUT]
+        Name              tail
         Tag               java-app.*
         Path              /var/log/egejavaapp/*.json
         Parser            json
@@ -391,11 +401,11 @@ config:
   filters: |
     [FILTER]
         Name             kubernetes
-        Match            java-app.*
+        Match            kube.*
         Kube_URL         https://kubernetes.default.svc:443
         Kube_CA_File     /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         Kube_Token_File  /var/run/secrets/kubernetes.io/serviceaccount/token
-        Kube_Tag_Prefix  java-app.var.log.egejavaapp.
+        Kube_Tag_Prefix  kube.var.log.containers.
         Merge_Log        On
         Merge_Log_Key    log_processed
 
@@ -403,13 +413,13 @@ config:
   outputs: |
     [OUTPUT]
         Name            es
-        Match           java-app.*
+        Match           *
         Host            elasticsearch-master
         Port            9200
         HTTP_User       elastic
         HTTP_Passwd     pg2S6LeVlngRQgmi
         Logstash_Format On
-        Logstash_Prefix java-app-logs
+        Logstash_Prefix egeindex
         Replace_Dots    On
         Suppress_Type_Name On
         tls On

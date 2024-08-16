@@ -15,7 +15,7 @@ max_replica: 6
 cpu_utilization: 70
 memory_utilization: 70
 container_name: java-app
-image_name: egeuzma1/java-app:v1
+image_name: egeuzma1/java-app:v5
 request_memory: "512Mi"
 limit_memory: "1Gi"
 request_cpu: "100m"

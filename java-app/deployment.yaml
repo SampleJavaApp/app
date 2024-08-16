@@ -25,7 +25,7 @@ spec:
                   operator: In
                   values:
                   - java-app
-              topologyKey: "kubernetes.io/hostname"  # Distribute pods across nodes
+              topologyKey: "kubernetes.io/hostname"
       containers:
       - name: java-app
         image: egeuzma1/java-app:v1
@@ -40,13 +40,13 @@ spec:
             cpu: "500m"
         readinessProbe:
           httpGet:
-            path: /api/foos?val=egeuzma  # Adjust this path to your application's health endpoint
+            path: /api/foos?val=egeuzma
             port: 9001
           initialDelaySeconds: 10
           periodSeconds: 5
         livenessProbe:
           httpGet:
-            path: /api/foos?val=egeuzma  # Adjust this path to your application's health endpoint
+            path: /api/foos?val=egeuzma
             port: 9001
           initialDelaySeconds: 15
           periodSeconds: 20
@@ -55,5 +55,4 @@ spec:
           mountPath: /var/log/egejavaapp
       volumes:
       - name: log-volume
-        persistentVolumeClaim:
-          claimName: egejavaapp-log-pvc
+        emptyDir: {}

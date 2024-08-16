@@ -6,7 +6,7 @@
         <file>/var/log/egejavaapp/application.json</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- Daily rollover -->
-            <fileNamePattern>/var/log/egejavaapp/application.%d{yyyy-MM-dd}.json</fileNamePattern>
+            <fileNamePattern>/var/log/egejavaapp/application.%d{dd-MM-yyyy}.json</fileNamePattern>
             <!-- Keep 30 days' worth of logs -->
             <maxHistory>30</maxHistory>
             <!-- Set the maximum size of the log file -->
@@ -19,11 +19,35 @@
     <!-- Define the asynchronous appender -->
     <appender name="ASYNC_JSON_FILE" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="JSON_FILE"/>
+        <queueSize>5000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <maxFlushTime>1000</maxFlushTime>
+        <includeCallerData>true</includeCallerData>
     </appender>
 
-    <!-- Set the root logger level and asynchronous appender -->
-    <root level="INFO">
+    <!-- Set the root logger level to TRACE to capture all levels -->
+    <root level="TRACE">
         <appender-ref ref="ASYNC_JSON_FILE"/>
     </root>
+
+    <logger name="com.samplejavaapp" level="INFO">
+        <appender-ref ref="ASYNC_JSON_FILE"/>
+    </logger>
+
+    <logger name="com.samplejavaapp.debug" level="DEBUG">
+        <appender-ref ref="ASYNC_JSON_FILE"/>
+    </logger>
+
+    <logger name="com.samplejavaapp.trace" level="TRACE">
+        <appender-ref ref="ASYNC_JSON_FILE"/>
+    </logger>
+
+    <logger name="com.samplejavaapp.warn" level="WARN">
+        <appender-ref ref="ASYNC_JSON_FILE"/>
+    </logger>
+
+    <logger name="com.samplejavaapp.error" level="ERROR">
+        <appender-ref ref="ASYNC_JSON_FILE"/>
+    </logger>
 
 </configuration>
