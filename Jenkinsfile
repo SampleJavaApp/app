@@ -28,19 +28,18 @@ pipeline {
                                     # Install Hadolint
                                     curl -L https://github.com/hadolint/hadolint/releases/download/v2.11.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
                                     chmod +x /usr/local/bin/hadolint
-                                    hadolint -v 
+                                    
                                     # Run Hadolint and save output to file
                                     DOCKERFILES=$(find . -type f -wholename "*Dockerfile" | xargs -n1 | tr '\n' ' ')
-                                    hadolint $DOCKERFILES > hadolint.json || true
+                                    hadolint $DOCKERFILES || true
 
                                     # Run Yamllint and save output to file
-                                    yamllint . > yamllint_output.txt || true
+                                    yamllint . || true
 
                                     # Run Ansible Lint and save output to file
-                                    ansible-lint ansible/playbook.yml > ansiblelint_output.txt || true
+                                    ansible-lint ansible/playbook.yml || true
                                     '''
-                                    // Archive the linting results
-                                    archiveArtifacts artifacts: 'hadolint_output.txt,yamllint_output.txt,ansiblelint_output.txt,checkstyle_output.txt', allowEmptyArchive: true
+        
                                 }
                         }
                     }
