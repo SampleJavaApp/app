@@ -16,8 +16,12 @@ pipeline {
                     ]) {
                         node('linting-agent') {
                             withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
+                                    git branch: "${GIT_BRANCH}",
+                                        url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
+                                }
                                 container('lint') {
                                     sh '''
+                                    ls
                                     # Install linting tools
                                     pip install --no-cache-dir yamllint ansible-lint
 
@@ -28,7 +32,6 @@ pipeline {
                                     # Run Hadolint and save output to file
                                     find . -type f -name "Dockerfile" | xargs hadolint
 
-
                                     # Run Yamllint and save output to file
                                     yamllint . > yamllint_output.txt
 
@@ -38,31 +41,30 @@ pipeline {
                                     // Archive the linting results
                                     archiveArtifacts artifacts: 'hadolint_output.txt,yamllint_output.txt,ansiblelint_output.txt,checkstyle_output.txt', allowEmptyArchive: true
                                 }
-                            }
                         }
                     }
                 }
             }
         }
-        // stage('Build with Kaniko') {
-        //     environment {
-        //         PATH = "/busybox:/kaniko:$PATH"
-        //     }
-        //     steps {
-        //         withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
-        //             git branch: "${GIT_BRANCH}",
-        //                 url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
-        //         }
-        //         container(name: 'kaniko', shell: '/busybox/sh') {
-        //         sh '''#!/busybox/sh
-        //             /kaniko/executor \
-        //                 --context `pwd` \
-        //                 --dockerfile `pwd`/Dockerfile \
-        //                 --destination ${DOCKERHUB_REPO}:v${BUILD_NUMBER}
-        //         '''
-        //         }
-        //     }
-        // }
+        stage('Build with Kaniko') {
+            environment {
+                PATH = "/busybox:/kaniko:$PATH"
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
+                    git branch: "${GIT_BRANCH}",
+                        url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
+                }
+                container(name: 'kaniko', shell: '/busybox/sh') {
+                sh '''#!/busybox/sh
+                    /kaniko/executor \
+                        --context `pwd` \
+                        --dockerfile `pwd`/Dockerfile \
+                        --destination ${DOCKERHUB_REPO}:v${BUILD_NUMBER}
+                '''
+                }
+            }
+        }
         // stage('Deploy Java App with Ansible') {
         //     steps {
         //         script {
