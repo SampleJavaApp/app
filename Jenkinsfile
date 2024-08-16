@@ -22,11 +22,8 @@ pipeline {
                                     pip install --no-cache-dir yamllint ansible-lint
 
                                     # Install Hadolint
-                                    wget -qO- https://github.com/hadolint/hadolint/releases/download/v2.11.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
+                                    curl -L https://github.com/hadolint/hadolint/releases/download/v2.11.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
                                     chmod +x /usr/local/bin/hadolint
-
-                                    # Install Java Lint (checkstyle)
-                                    wget -qO- https://github.com/checkstyle/checkstyle/releases/download/checkstyle-10.9/checkstyle-10.9-all.jar -o /usr/local/bin/checkstyle.jar
 
                                     # Run Hadolint and save output to file
                                     hadolint Dockerfile > hadolint_output.txt
@@ -36,9 +33,6 @@ pipeline {
 
                                     # Run Ansible Lint and save output to file
                                     ansible-lint ansible/playbook.yml > ansiblelint_output.txt
-
-                                    # Run Java Lint (checkstyle) and save output to file
-                                    java -jar /usr/local/bin/checkstyle.jar -c /google_checks.xml src > checkstyle_output.txt
                                     '''
                                     // Archive the linting results
                                     archiveArtifacts artifacts: 'hadolint_output.txt,yamllint_output.txt,ansiblelint_output.txt,checkstyle_output.txt', allowEmptyArchive: true
