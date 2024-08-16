@@ -28,7 +28,7 @@ pipeline {
                                     # Install Hadolint
                                     curl -L https://github.com/hadolint/hadolint/releases/download/v2.11.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
                                     chmod +x /usr/local/bin/hadolint
-                                    
+
                                     # Run Hadolint and save output to file
                                     DOCKERFILES=$(find . -type f -wholename "*Dockerfile" | xargs -n1 | tr '\n' ' ')
                                     hadolint $DOCKERFILES || true
@@ -46,25 +46,25 @@ pipeline {
                 }
             }
         }
-        stage('Build with Kaniko') {
-            environment {
-                PATH = "/busybox:/kaniko:$PATH"
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
-                    git branch: "${GIT_BRANCH}",
-                        url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
-                }
-                container(name: 'kaniko', shell: '/busybox/sh') {
-                sh '''#!/busybox/sh
-                    /kaniko/executor \
-                        --context `pwd` \
-                        --dockerfile `pwd`/Dockerfile \
-                        --destination ${DOCKERHUB_REPO}:v${BUILD_NUMBER}
-                '''
-                }
-            }
-        }
+        // stage('Build with Kaniko') {
+        //     environment {
+        //         PATH = "/busybox:/kaniko:$PATH"
+        //     }
+        //     steps {
+        //         withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
+        //             git branch: "${GIT_BRANCH}",
+        //                 url: "https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@${GIT_REPO_URL}"
+        //         }
+        //         container(name: 'kaniko', shell: '/busybox/sh') {
+        //         sh '''#!/busybox/sh
+        //             /kaniko/executor \
+        //                 --context `pwd` \
+        //                 --dockerfile `pwd`/Dockerfile \
+        //                 --destination ${DOCKERHUB_REPO}:v${BUILD_NUMBER}
+        //         '''
+        //         }
+        //     }
+        // }
         // stage('Deploy Java App with Ansible') {
         //     steps {
         //         script {
