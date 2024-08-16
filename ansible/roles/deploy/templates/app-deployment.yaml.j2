@@ -29,7 +29,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: {{ container_name }}
-        image: {{ image_name }}
+        image: {{ image_name }}:{{ image_tag }}
         ports:
         - containerPort: {{ service_target_port_number }}
         resources:

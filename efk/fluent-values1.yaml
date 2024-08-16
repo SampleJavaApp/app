@@ -472,6 +472,8 @@ daemonSetVolumes:
     hostPath:
       path: /etc/machine-id
       type: File
+  - name: log-volume
+    emptyDir: {}
 
 daemonSetVolumeMounts:
   - name: varlog
@@ -481,6 +483,9 @@ daemonSetVolumeMounts:
     readOnly: true
   - name: etcmachineid
     mountPath: /etc/machine-id
+    readOnly: true
+  - name: log-volume
+    mountPath: /var/log/egejavaapp
     readOnly: true
 
 command:
