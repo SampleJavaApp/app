@@ -23,21 +23,19 @@ pipeline {
                                     sh '''
                                     ls
                                     # Install linting tools
-                                    pip install --no-cache-dir yamllint ansible-lint
+                                    pip install --no-cache-dir yamllint
 
                                     # Install Hadolint
                                     curl -L https://github.com/hadolint/hadolint/releases/download/v2.11.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
                                     chmod +x /usr/local/bin/hadolint
 
-                                    # Run Hadolint and save output to file
+                                    # Run Hadolint
                                     DOCKERFILES=$(find . -type f -wholename "*Dockerfile" | xargs -n1 | tr '\n' ' ')
                                     hadolint $DOCKERFILES || true
 
-                                    # Run Yamllint and save output to file
+                                    # Run Yamllint
                                     yamllint . || true
 
-                                    # Run Ansible Lint and save output to file
-                                    ansible-lint ansible/playbook.yml || true
                                     '''
         
                                 }
@@ -85,6 +83,8 @@ pipeline {
 
         //                             ansible --version
         //                             ansible-galaxy collection list
+                                        // # Run Ansible Lint and save output to file
+                                        // ansible-lint ansible/playbook.yml || true
 
         //                             # Use the kubeconfig file for Ansible Kubernetes tasks
         //                             export KUBECONFIG=${KUBECONFIG}
