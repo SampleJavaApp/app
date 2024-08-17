@@ -476,6 +476,45 @@ expression, i didnt use podAffinty feature.
   - Note: To able to access to website with java-app-ege.test i added my node IP to etc/hosts in my PC. 
 
 ### Step-3.5
+- I decided to write a application with Python Flask because Flask’s ability to handle HTTP requests and generate JSON responses fits well with Kubernetes webhook requirements. 
+- Here you can check [Validation Files](https://github.com/Lastroke/app/tree/develop/validate-deployment).
+- First i created basic validate.py with Flask.
+  - When there is a POST Request validate function is run.
+  - In that validate function basically request of resources from Containers within a Deployment is checked.
+  - If Container does not have resource request than it will send AdmissionReview response back. Then Deployment wont happen.
+  - If container does have resource request then Deployment will be created.
+- I create a simple Dockerfile to build and push this Python Application to my dockerhub repository [Validation Dockerfile](https://github.com/Lastroke/app/blob/develop/validate-deployment/validate.Dockerfile).
+- Since the webhook admission object communicates only over HTTPS, TLS Certificate needs to be created and added to ssl_context=('/etc/webhook/certs/tls.crt', '/etc/webhook/certs/tls.key').
+  ```sh
+        mkdir -p webhook-certs
+        openssl genrsa -out webhook-certs/ca.key 2048
+        openssl req -x509 -new -nodes -key webhook-certs/ca.key -subj "/CN=webhook-ca" -days 60 -out webhook-certs/ca.crt
+      
+        cat > webhook-certs/san.cnf <<EOF
+        [ req ]
+        req_extensions = v3_req
+        distinguished_name = req_distinguished_name
+        [ req_distinguished_name ]
+        [ v3_req ]
+        subjectAltName = @alt_names
+        [ alt_names ]
+        DNS.1 = webhook-server.default.svc
+        EOF
+  
+        openssl genrsa -out webhook-certs/server.key 2048
+        openssl req -new -key webhook-certs/server.key -subj "/CN=webhook-server.default.svc" -out webhook-certs/server.csr -config webhook-certs/san.cnf
+        openssl x509 -req -in webhook-certs/server.csr -CA webhook-certs/ca.crt -CAkey webhook-certs/ca.key -CAcreateserial -out webhook-certs/server.crt -days 60 -extensions v3_req -extfile webhook-certs/san.cnf
 
+    ```
+- After that i create a Validating Webhook Configuration file and configure webhook in it.
+  - It will validate only the Deployments creations or update nothing else.
+  - I created a caBundle using **cat webhook-certs/ca.crt | base64 | tr -d '\n'** and assign it to caBundle variables
+  - It uses the service that i created it for.
+  - It will send requests to the /validate endpoint which is exactly where python application is take action.
+- Last but not least Deployment and Service Manifest are created.
+  - It uses my validate webhook image that i build and pushed
+  - Service is created to port 443 for HTTPS and Python Application is also listen there.
+- After apply Deployment, Service and Validating Webhook Configuration files, our webhook is ready.
+  ![validateee](https://github.com/user-attachments/assets/6bc6fb3d-d460-4e4c-b42b-60517d866510)
 
 ## Step-4
