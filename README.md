@@ -405,13 +405,29 @@ expression, i didnt use podAffinty feature.
       ```
       ![java pp pods bunu kullan](https://github.com/user-attachments/assets/dcd3ba30-51d9-4d68-8983-d59def157f9e)
 
-  -
+  - readinessProbe and livenessProbe are used or ensuring the application receives requests as soon as it is ready and restarted if there is a problem. If the readiness probe fails, Kubernetes will not route any traffic to that container. If the liveness probe fails, Kubernetes will restart the container
   ```yaml
-      ingressClassName: nginx
+      readinessProbe:
+          httpGet:
+            path: /api/foos?val=egeuzma
+            port: 9001
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /api/foos?val=egeuzma
+            port: 9001
+          initialDelaySeconds: 15
+          periodSeconds: 20
   ```
-  -
+  - And for application log which i already configuren in logback.xml, i give as a volumeMount.
   ```yaml
-      ingressClassName: nginx
+      volumeMounts:
+        - name: log-volume
+          mountPath: /var/log/egejavaapp
+      volumes:
+      - name: log-volume
+        emptyDir: {}
   ```
 ### Step-3.3
 
