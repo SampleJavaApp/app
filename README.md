@@ -158,6 +158,7 @@
     
   - I changed nodeSelector to deploy Jenkins on worker node-2 as it requested. Because it was an basic 
 expression, i didnt use podAffinty feature.
+    Note: Worker node-2 also labeled deploy: jenkins.
     ```yaml
      nodeSelector:
           deploy: jenkins
@@ -167,15 +168,20 @@ expression, i didnt use podAffinty feature.
      storageClass: local-storage
      size: "10Gi"
      ```
-  - After These all are set, i run helm istall command.
+  - After These all are set, i run helm istall command to deploy Jenkins on k8s cluster with my values.yaml.
       ```sh
         helm install jenkins jenkins/jenkins -n jenkins-helm -f jenkins-helm.yaml
       ```
+- With using externalIP:30015 i can access Jenkins and contiune to setup.
+  ![jenkins](https://github.com/user-attachments/assets/53df83e9-bb7b-4d43-87e3-1bea03220cf5)
+- After setup is finished and configured i can finally login with my username and password.
+  ![image](https://github.com/user-attachments/assets/9353ed0a-4e16-4d97-b20d-bd8de575bb7a)
+
+
 
 ### Step-2.3 - Deploy Prometheus & Grafana on K8s for Kubernetes and application monitoring purposes
 
-### Step-2.4 - Deploy Elasticsearch, Kibana, and fluent-bit on K8s for Kubernetes & application logging
-purposes.
+### Step-2.4 - Deploy Elasticsearch, Kibana, and fluent-bit on K8s for Kubernetes & application logging purposes.
 
 
 
