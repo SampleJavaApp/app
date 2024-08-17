@@ -430,8 +430,50 @@ expression, i didnt use podAffinty feature.
         emptyDir: {}
   ```
 ### Step-3.3
+- Kubernetes plugin was already installed and Kubernetes Cloud was already set because i use Helm to deploy Jenkins. It was already configured. The default Pod template was already there also.
+- What i did is i create a Pod Template for **Kaniko** because Kaniko will be used to build and push the image to my docker repository.
+  ![image](https://github.com/user-attachments/assets/48938a66-667e-43fc-9d1f-4ffa5efb0329)
+- Secret is created and mounted to **Kaniko** Pod template to use my dockerhub credentials to push
+   ```sh
+        kubectl create secret docker-registry dockerhub-secret \
+        --docker-server=https://index.docker.io/v1/ \
+        --docker-username=egeuzma1 \
+        --docker-password=******* \
+        --docker-email=uzma.ege@gmail.com \
+        --namespace=jenkins-helm
+    ```
+- Now Kaniko Container is ready to build and push my docker image. As a versioning i use Jenkins env variable BUILD_NUMBER to version my image.
+  ```sh
+        /kaniko/executor \
+            --context `pwd` \
+            --dockerfile `pwd`/Dockerfile \
+            --destination ${DOCKERHUB_REPO}:v${BUILD_NUMBER}
+    ```
+- As a Build Stage i added a Linter stage before building the image yamllint and hadolint is runned and scanned .yaml and Dockerfiles for lint issues. Linter tools is very helpful to improve code quality, consistency. [Jenkinsfile](https://github.com/Lastroke/app/blob/develop/Jenkinsfile)
+- After setup a Pipeline in Jenkins my docker image is build and uploaded to my dockerhub successfully
+  ![image](https://github.com/user-attachments/assets/2d53b005-d2cb-4b75-9f59-b53bb86b0409)
 
 ### Step-3.4
+
+- For CD part i use same Jenkinsfile and pipeline.
+- Note:Also 2 different pipeline can be created and when CI Pipeline finish it can trigger CD Pipeline with Build with Parameters, if there is a parameter you need set.
+  This can be done specially if source code repository and CD Configuration/Manifests repositoriy are seperated. But in this case i use same repository for source code and infrastruture.
+- To deploy our java app with Ansible i created service account and give it neccessary permission to able to deploy application. After that i created a kubeconfig for ansible service account because it will be more secure rather than use admin kubeconfig and added to Jenkins Creds.
+  ![image](https://github.com/user-attachments/assets/73e610cc-96c3-4d95-8885-3fdfe02492ed)
+- I created a **deploy role** under [Ansible Files](https://github.com/Lastroke/app/tree/develop/ansible) folder.
+  - Default varaibles for templates are created. [Default Variables](https://github.com/Lastroke/app/blob/develop/ansible/roles/deploy/defaults/main.yml).
+  - Jinja Templates are created for java-application yaml files and hardcoded values are replaced with default variable names. [Jinja Templates](https://github.com/Lastroke/app/tree/develop/ansible/roles/deploy/templates).
+  - Tasks are created to deploy Java Application with Jinja Templates. [Tasks](https://github.com/Lastroke/app/blob/develop/ansible/roles/deploy/tasks/main.yml)
+  - Last but not least playbook.yml is created and deploy role assign to it.
+- With this setup when playbook.yml is run. Ansible will deploy java-app to my k8s cluster. Manifest files will be applied according to values that assigned.
+  ![image](https://github.com/user-attachments/assets/9aad6d92-301d-48bd-9d62-964665503463)
+
+- Here you can find full version of [Jenkinsfile](https://github.com/Lastroke/app/blob/develop/Jenkinsfile).
+- After a successfull Deployment we can access our web-app.
+  ![java pp pods bunu kullan](https://github.com/user-attachments/assets/dcd3ba30-51d9-4d68-8983-d59def157f9e)
+  ![image](https://github.com/user-attachments/assets/7cd47d17-a918-4fa5-a29b-8b09d912f372)
+  Here we can see all of our **Deployment, Service, Ingress, HPA Manifest** are deployed successfully and run as expected.
+  Note: To able to access to website with java-app-ege.test i added my node IP to etc/hosts in my PC. 
 
 ### Step-3.5
 
