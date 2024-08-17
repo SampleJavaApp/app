@@ -244,7 +244,7 @@ expression, i didnt use podAffinty feature.
     helm install elasticsearch elastic/elasticsearch -f es-values.yaml -n kube-logging
     ```
 - Next is deploy the Kibana. For Kibana i only edit the values.yaml and install it
-- Heres what i chaged [Kibana Values](https://github.com/Lastroke/app/blob/develop/efk/kibana-values.yaml):
+- Here is what i changed [Kibana Values](https://github.com/Lastroke/app/blob/develop/efk/kibana-values.yaml):
   - To expose the Kibana application outside of your Kubernetes cluster: 
      ```yaml
         serviceType: NodePort
@@ -277,9 +277,94 @@ expression, i didnt use podAffinty feature.
     ```sh
         helm install kibana elastic/kibana -n kube-logging -f kibana-values.yaml
     ```
-![elastic giriş ekranı](https://github.com/user-attachments/assets/f19150f4-e5b9-4702-a2aa-c387d8d3527a)
-Here you can see auth method is enabled and can log in.
-![Ekran görüntüsü 2024-08-13 161022](https://github.com/user-attachments/assets/988c941c-c8b7-46cc-a2a4-f9a3dcc9b378)
+    ![elastic giriş ekranı](https://github.com/user-attachments/assets/f19150f4-e5b9-4702-a2aa-c387d8d3527a)
+    - Here you can see auth method is enabled and can log in.
+    ![Ekran görüntüsü 2024-08-13 161033](https://github.com/user-attachments/assets/fc40d1a4-1ef5-43dc-9c81-77537f8ac154)
+    - And log index you can see
+    ![image](https://github.com/user-attachments/assets/817bf7fd-64e9-43d8-934c-e42890375b83)
+    ![elastic fluent](https://github.com/user-attachments/assets/df1df0a2-5bf8-4a53-b804-6538a736d7a7)
+
+
+
+
+- Next is to deploy Fluent-bit and also configuring our application logs according to task.
+- Here is what i changed [Fluent Values](https://github.com/Lastroke/app/blob/develop/efk/fluent-values.yaml):
+  - I added 2 extra config in fluentbit values.yaml. First is a second Input for my application logs. So that when application is run fluentbit take logs from /var/log/egejavaapp/*.json. Second Part is for OUTPUT i just gave user, password, host so it can connect to Elastic.
+     ```yaml
+        inputs: |
+            ..... default config
+            [INPUT]
+                Name              tail
+                Tag               java-app.*
+                Path              /var/log/egejavaapp/*.json
+                Parser            json
+                DB                /var/log/flb_java_app.db
+                Mem_Buf_Limit     5MB
+                Skip_Long_Lines   On
+                Refresh_Interval  10
+     ...... default config
+     outputs: |
+        [OUTPUT]
+            Name            es
+            Match           *
+            Host            elasticsearch-master
+            Port            9200
+            HTTP_User       elastic
+            HTTP_Passwd     ******
+            Logstash_Format On
+            Logstash_Prefix egeindex
+            Replace_Dots    On
+            Suppress_Type_Name On
+            tls On
+            tls.verify Off
+            Retry_Limit     False
+    ```
+  - Here i also give my application log folder as a volume to fluent-bit pod so it can read and upload to Elastic. 
+     ```yaml
+         daemonSetVolumes:
+           ... default config
+          - name: log-volume
+            emptyDir: {}
+         daemonSetVolumeMounts:
+             ..... default config
+         - name: log-volume
+           mountPath: /var/log/egejavaapp
+           readOnly: true
+    ```
+  - After everything is set, install the chart with command:
+    ```sh
+        helm install fluent-bit fluent/fluent-bit -n kube-logging -f fluent-values.yaml
+    ```
+- And here we can see fluentbit pod logs
+  ![image](https://github.com/user-attachments/assets/ef811a9a-6abb-4628-8aa7-53bb84e9471b)
+
+- Here how i configured my application to create logs
+    - to a file asynchronously
+    - Log file size should not be greater than 1GB
+    - Log files should be rotated daily
+  - I create logback.xml in src/main/resources [Logback File](https://github.com/Lastroke/app/blob/develop/src/main/resources/logback.xml):
+    - Here you can see that my log folder that i also mount the application and to Fluent-bit. I use dd-MM-yyyy for daily rotation and total size 1GB. At the I added AsyncAppender so logs will be written asynchronously
+      ```xml
+          ...
+           <file>/var/log/egejavaapp/application.json</file>
+          ...
+          <fileNamePattern>/var/log/egejavaapp/application.%d{dd-MM-yyyy}.json</fileNamePattern>
+          ...
+          <totalSizeCap>1GB</totalSizeCap>
+
+          <appender name="ASYNC_JSON_FILE" class="ch.qos.logback.classic.AsyncAppender">
+              <appender-ref ref="JSON_FILE"/>
+              .....
+      ```
+    - I added dependencies to my [Pom XML]([https://github.com/Lastroke/app/blob/develop/src/main/resources/logback.xml](https://github.com/Lastroke/app/blob/develop/pom.xml)) so that logback can run without failure.
+
+- Now i set logback and also give necessary information to take log to Fluent-bit. My application logs will be in Elastic daily with max size 1GB and will be written asynchronously for performance
+  - Fluentbit successfully take the logs from my application log folder
+    ![fluentbit pod logs önemli](https://github.com/user-attachments/assets/672aaefe-014f-44d1-8954-95d27fa8f106)
+
+  - And Here you can see the index and you can see that its daily
+      ![çok önemli,](https://github.com/user-attachments/assets/3b82b7f1-fa1b-42b2-8bfa-a300dc929cf6)
+
 
 ## Step-3
 
