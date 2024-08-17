@@ -146,7 +146,7 @@
 - I setup Jenkins in jenkins-helm namespace on my k8s cluster via Helm.
 - I created Persistent Volume for Jenkins. So that when i helm install PVC of Jenkins can claim it.
 - Before creating PV i also create StorageClass named as local-storage.
-- Here you can find the PV for Jenkins [Jenkins PV]([https://github.com/Lastroke/app/blob/develop/Dockerfile](https://github.com/Lastroke/app/blob/develop/jenkins/jenkins-pv.yaml))
+- Here you can find the PV for Jenkins [Jenkins PV](https://github.com/Lastroke/app/blob/develop/jenkins/jenkins-pv.yaml)
 - I didnt use default values.yaml because i need to configure it to my purpose. So here is what i changed in values.yaml
   - To expose the Jenkins application outside of your Kubernetes cluster: 
      ```yaml
@@ -168,7 +168,7 @@ expression, i didnt use podAffinty feature.
      storageClass: local-storage
      size: "10Gi"
      ```
-  - After These all are set, i run helm istall command to deploy Jenkins on k8s cluster with my values.yaml.
+  - After These all are set, i run helm istall command to deploy Jenkins on k8s cluster with my values.yaml.  [Jenkins Values](https://github.com/Lastroke/app/blob/develop/jenkins/jenkins-values.yaml)
       ```sh
         helm install jenkins jenkins/jenkins -n jenkins-helm -f jenkins-helm.yaml
       ```
@@ -180,6 +180,7 @@ expression, i didnt use podAffinty feature.
 
 
 ### Step-2.3 - Deploy Prometheus & Grafana on K8s for Kubernetes and application monitoring purposes
+
 
 ### Step-2.4 - Deploy Elasticsearch, Kibana, and fluent-bit on K8s for Kubernetes & application logging purposes.
 
