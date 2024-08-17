@@ -6,11 +6,11 @@
 
 ## Step-1
 
-### Step-1.1
+### Step-1.1 Fork the Repository
 
 - I forked this [sample-java-app](https://github.com/SampleJavaApp/app) to my own GitHub account and started to work on develop branch.
 
-### Step-1.2
+### Step-1.2 Create a Dockerfile for the application using multi-stage builds
 
 - I created a Dockerfile with multi-stages for this application.
 
@@ -141,6 +141,42 @@
     ```sh
     kubeadm join 10.156.0.2:6443 --token ******** --discovery-token-ca-cert-hash sha256:*****
     ```
+### Step-2.2 - Deploy Jenkins
+
+- I setup Jenkins in jenkins-helm namespace on my k8s cluster via Helm.
+- I created Persistent Volume for Jenkins. So that when i helm install PVC of Jenkins can claim it.
+- Before creating PV i also create StorageClass named as local-storage.
+- Here you can find the PV for Jenkins [Jenkins PV]([https://github.com/Lastroke/app/blob/develop/Dockerfile](https://github.com/Lastroke/app/blob/develop/jenkins/jenkins-pv.yaml))
+- I didnt use default values.yaml because i need to configure it to my purpose. So here is what i changed in values.yaml
+  - To expose the Jenkins application outside of your Kubernetes cluster: 
+     ```yaml
+    serviceType: NodePort
+    nodePort: 30015
+    ```
+    
+    Note: Also ingress controller and resource can be used for the same purposes. For that change service type to ClusterIP.
+    
+  - I changed nodeSelector to deploy Jenkins on worker node-2 as it requested. Because it was an basic 
+expression, i didnt use podAffinty feature.
+    ```yaml
+     nodeSelector:
+          deploy: jenkins
+    ```
+  - To bound PVC with my PV which it is already created, i need to also edit these part in values.yaml.
+     ```yaml
+     storageClass: local-storage
+     size: "10Gi"
+     ```
+  - After These all are set, i run helm istall command.
+      ```sh
+        helm install jenkins jenkins/jenkins -n jenkins-helm -f jenkins-helm.yaml
+      ```
+
+### Step-2.3 - Deploy Prometheus & Grafana on K8s for Kubernetes and application monitoring purposes
+
+### Step-2.4 - Deploy Elasticsearch, Kibana, and fluent-bit on K8s for Kubernetes & application logging
+purposes.
+
 
 
 ## Step-3
