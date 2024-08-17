@@ -53,12 +53,94 @@
 
 ## Step-2
 
-### Step-2.1
+### Step-2.1 - Create a Production Ready Kubernetes Cluster
 
 - First I setup the kubernetes cluster to my own PC with Vagrant file you provided but later i had some issues with PC resources. That is why i setup k8s cluster again in GCP.
 
 - I created 3 VM in GCP and named them as k8s-master, node-1 (worker) and node-2 (worker).
   ![image](https://github.com/user-attachments/assets/ed034c68-af53-417b-811c-3e85cf87a098)
+
+- I create firewall rules for k8s components on master and worker nodes. Such as Kubelet, Kubernetes API, etcd, NodePort (workers only)
+
+- So next step is to setup container runtime for our nodes.
+- But before setup container runtime there are prerequisites for it. Forwarding IPv4 and letting iptables see bridged traffic.
+    - First we need to load 2 modules in linux for storage driver and bridge networking.
+    ```sh
+    modprobe overlay #storage driver
+    modprobe br_netfilter # nat for bridge networking
+    ```
+    - Forwarding IPv4 and letting iptables see bridged traffic. /etc/sysctl.d/k8s.conf file is edited.
+    ```sh
+    net.bridge.bridge-nf-call-ip6tables = 1
+    net.bridge.bridge-nf-call-iptables = 1
+    net.ipv4.ip_forward = 1
+    ```
+    - And finally system restart
+    ```sh
+    sudo sysctl --system
+    ```
+- Now we can install container runtime containerd. Because Docker has no support anymore and containerd was actually responsible for the core container operations in Docker. So i choose containerd as a container runtime for my nodes.
+  - First Setup Docker's apt repository.
+  ```sh
+    sudo apt-get update
+    sudo apt-get install ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+  
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+  ```
+  
+  - Then install the containerd with apt-get
+    ```sh
+    sudo apt-get install containerd.io
+    ```
+- Kubelet and container runtime need to interact with Cgroup drivers in order to enforce resource management for pods and containers. And both needs to use same Cgroup driver. Because our init system use systemd we configure /etc/containerd/config.toml to use also systemd as a Cgroup driver and restart containerd.
+    ```sh
+    [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+        SystemdCgroup = true
+    ```
+    ```sh
+    sudo systemctl restart containerd
+    ```
+- Note: No need for Kubelet because its already set systemd in kubernetes v1.30
+
+- Now it is turn for installing kubeadm, kubelet and kubectl.
+  ```sh
+    sudo apt-get update
+    sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+    sudo apt-get update
+    sudo apt-get install -y kubelet kubeadm kubectl
+    sudo apt-mark hold kubelet kubeadm kubectl
+    sudo systemctl enable --now kubelet
+  ```
+- Its time for creating the cluster now with kubeadm init in master node. Because i will use Calico as Networking, i set -pod-network-cidr=192.168.0.0/16.
+    ```sh
+    sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=10.156.0.2
+    ```
+- Create for user kubeconfig file to connect k8s cluster
+    ```sh
+    mkdir -p $HOME/.kube
+    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    sudo chown $(id -u):$(id -g) $HOME/.kube/config
+    export KUBECONFIG=$HOME/.kube/config
+    ```
+- Now its time to deploy pod network on master node and for that Calico will be used. Its popular and it provide robust networking features, strong security, and flexibility.
+    ```sh
+    kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.1/manifests/tigera-operator.yaml
+    kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.1/manifests/custom-resources.yaml
+    ```
+- Final lets worker nodes join the k8s cluster with using kubeadm join
+    ```sh
+    kubeadm join 10.156.0.2:6443 --token ******** --discovery-token-ca-cert-hash sha256:*****
+    ```
 
 
 ## Step-3
