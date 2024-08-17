@@ -16,7 +16,7 @@ cpu_utilization: 70
 memory_utilization: 70
 container_name: java-app
 image_name: egeuzma1/java-app
-image_tag: v5
+image_tag: v55
 request_memory: "512Mi"
 limit_memory: "1Gi"
 request_cpu: "100m"
