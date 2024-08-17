@@ -57,7 +57,9 @@
 
 - First I setup the kubernetes cluster to my own PC with Vagrant file you provided but later i had some issues with PC resources. That is why i setup k8s cluster again in GCP.
 
-- I created 3 VM in GCP 
+- I created 3 VM in GCP and named them as k8s-master, node-1 (worker) and node-2 (worker).
+  ![image](https://github.com/user-attachments/assets/ed034c68-af53-417b-811c-3e85cf87a098)
+
 
 ## Step-3
 
