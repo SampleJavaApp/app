@@ -518,3 +518,44 @@ expression, i didnt use podAffinty feature.
   ![validateee](https://github.com/user-attachments/assets/6bc6fb3d-d460-4e4c-b42b-60517d866510)
 
 ## Step-4
+
+### Step-4.1
+- To scale App X under heavy load while managing limited resources, Horizontal Pod Autoscaler (HPA) can be configured for App X. According to CPU utilization or custom metric, HPA will automatically scale the number of replicas for App X. Since App Y is managing batch jobs and is killable, PodDisruptionBudget can be used to allow Kubernetes to evict pods of App Y when needed to free up resources for App X.
+    ```yaml
+        apiVersion: autoscaling/v2
+        kind: HorizontalPodAutoscaler
+        metadata:
+          name: app-x-hpa
+        spec:
+          scaleTargetRef:
+            apiVersion: apps/v1
+            kind: Deployment
+            name: app-x-deployment
+          minReplicas: 2
+          maxReplicas: 10
+          metrics:
+            - type: Resource
+              resource:
+                name: cpu
+                target:
+                  type: Utilization
+                  averageUtilization: 50
+        
+        -----------------------------
+        
+        apiVersion: policy/v1
+        kind: PodDisruptionBudget
+        metadata:
+          name: app-y-pdb
+        spec:
+          minAvailable: 1
+          selector:
+            matchLabels:
+              app: app-y
+
+    ```
+- If we look at the example above App X can be scale up to 10 replicas if CPU usage goes above 50%. And App Y can scale down to 1 pod to free up resources
+
+### Step-4.2
+- As a tool i would use **Argo Rollouts** because it’s a Kubernetes controller that provides deployment capabilities, not only canary, but also blue-green. It integrates well with existing CI/CD pipelines and can automate the promotion or rollback of releases based on metrics.
+- 
