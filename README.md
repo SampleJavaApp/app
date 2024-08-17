@@ -405,7 +405,7 @@ expression, i didnt use podAffinty feature.
       ```
       ![java pp pods bunu kullan](https://github.com/user-attachments/assets/dcd3ba30-51d9-4d68-8983-d59def157f9e)
 
-  - readinessProbe and livenessProbe are used or ensuring the application receives requests as soon as it is ready and restarted if there is a problem. If the readiness probe fails, Kubernetes will not route any traffic to that container. If the liveness probe fails, Kubernetes will restart the container
+  - **readinessProbe** and **livenessProbe** are used or ensuring the application receives requests as soon as it is ready and restarted if there is a problem. If the readiness probe fails, Kubernetes will not route any traffic to that container. If the liveness probe fails, Kubernetes will restart the container
   ```yaml
       readinessProbe:
           httpGet:
