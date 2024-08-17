@@ -217,6 +217,9 @@ expression, i didnt use podAffinty feature.
     ```
 - After i login the Grafana with username and password.  I set Prometheus as data source and create common dashboard.
   ![Ekran görüntüsü 2024-08-11 014500](https://github.com/user-attachments/assets/c4879314-fca3-4c0a-a2cc-a50a202bad8d)
+- Also create alert if one of the node is down
+  ![alert detail](https://github.com/user-attachments/assets/f524926e-37a6-4841-a9f7-38cb53e999ff)
+
 
   
 ### Step-2.4 - Deploy Elasticsearch, Kibana, and fluent-bit on K8s for Kubernetes & application logging purposes.
@@ -367,5 +370,54 @@ expression, i didnt use podAffinty feature.
 
 
 ## Step-3
+
+### Step-3.1
+- I created the necessary manifest files for Java Application. Here you can check it.[Java App Manifest Files](https://github.com/Lastroke/app/tree/develop/java-app)
+- Metrics Server is installed via Helm for HPA to work properly
+   ```sh
+        helm install metrics-server metrics-server/metrics-server
+    ```
+- Nginx Ingress Controller is installed via Helm for Ingress Resource. Here i set the service type to NodePort because there is no LoadBalancer setup in my environment.
+    ```sh
+        helm install ingress-nginx ingress-nginx/ingress-nginx --set controller.service.type=NodePort
+    ```
+- In my [Ingress Manifest](https://github.com/Lastroke/app/blob/develop/java-app/ingress.yaml) i set ingress class name to nginx. Its default name from Nginx Controller.
+  ```yaml
+      ingressClassName: nginx
+  ```
+- Every Manifest file is set and ready to use.
+### Step-3.2
+- So lets take look at closer to my [Deployment Manifest](https://github.com/Lastroke/app/blob/develop/java-app/deployment.yaml)
+  - As requested from the task replica is set to 4 and in order to make sure pods are distributed equally across nodes podAntiAffinity is used. Why i choose preferred and not required because if requiredDurinScheduling is use only to pod will placed to node-1 and node-2 then it wont schedule anymore because the two nodes get already 1 pod. Thats why i use prefereed one. I set to weight: 100 to let scheduler knows its very important. So with that configuration 2 pods will be in node-1 and 2 will be node-2.
+  ```yaml
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - java-app
+              topologyKey: "kubernetes.io/hostname"
+  ```
+      ![java pp pods bunu kullan](https://github.com/user-attachments/assets/dcd3ba30-51d9-4d68-8983-d59def157f9e)
+
+  -
+  ```yaml
+      ingressClassName: nginx
+  ```
+  -
+  ```yaml
+      ingressClassName: nginx
+  ```
+### Step-3.3
+
+### Step-3.4
+
+### Step-3.5
+
 
 ## Step-4
