@@ -455,7 +455,7 @@ expression, i didnt use podAffinty feature.
 
 ### Step-3.4
 
-- For CD part i use same Jenkinsfile and pipeline.
+- For CD part i use same Jenkinsfile and pipeline configuration.
 - Note:Also 2 different pipeline can be created and when CI Pipeline finish it can trigger CD Pipeline with Build with Parameters, if there is a parameter you need set.
   This can be done specially if source code repository and CD Configuration/Manifests repositoriy are seperated. But in this case i use same repository for source code and infrastruture.
 - To deploy our java app with Ansible i created service account and give it neccessary permission to able to deploy application. After that i created a kubeconfig for ansible service account because it will be more secure rather than use admin kubeconfig and added to Jenkins Creds.
@@ -472,8 +472,8 @@ expression, i didnt use podAffinty feature.
 - After a successfull Deployment we can access our web-app.
   ![java pp pods bunu kullan](https://github.com/user-attachments/assets/dcd3ba30-51d9-4d68-8983-d59def157f9e)
   ![image](https://github.com/user-attachments/assets/7cd47d17-a918-4fa5-a29b-8b09d912f372)
-  Here we can see all of our **Deployment, Service, Ingress, HPA Manifest** are deployed successfully and run as expected.
-  Note: To able to access to website with java-app-ege.test i added my node IP to etc/hosts in my PC. 
+  - Here we can see all of our **Deployment, Service, Ingress, HPA Manifest** are deployed successfully and run as expected.
+  - Note: To able to access to website with java-app-ege.test i added my node IP to etc/hosts in my PC. 
 
 ### Step-3.5
 
