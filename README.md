@@ -168,7 +168,7 @@ expression, i didnt use podAffinty feature.
      storageClass: local-storage
      size: "10Gi"
      ```
-  - After These all are set, i run helm istall command to deploy Jenkins on k8s cluster with my values.yaml.  [Jenkins Values](https://github.com/Lastroke/app/blob/develop/jenkins/jenkins-values.yaml)
+  - After These all are set, i run helm istall command to deploy Jenkins on k8s cluster with my values.yaml  [Jenkins Values](https://github.com/Lastroke/app/blob/develop/jenkins/jenkins-values.yaml)
       ```sh
         helm install jenkins jenkins/jenkins -n jenkins-helm -f jenkins-helm.yaml
       ```
@@ -180,8 +180,45 @@ expression, i didnt use podAffinty feature.
 
 
 ### Step-2.3 - Deploy Prometheus & Grafana on K8s for Kubernetes and application monitoring purposes
+- Just like Jenkins, i also use Helm Charts to deploy Prometheus and Grafana.
+- First i created 2 PV for prometheus-server itself and prometheus-alert. So that when i install the chart it will automatically bound.
+- I also changed couple of things in the values.yaml. Here is what i changed.
+  - To expose the Prometheus application outside of your Kubernetes cluster: 
+     ```yaml
+    serviceType: NodePort
+    nodePort: 32090
+    ```
+  - To bound PVC with my PV which it is already created, i need to also edit these part in values.yaml.
+     ```yaml
+     storageClass: local-storage
+     ```
+- After everything is set, install the chart with command:
+  ```sh
+    helm install prometheus prometheus-community/prometheus -f prometheus-values.yaml
+  ```
+  ![Ekran görüntüsü 2024-08-10 203548](https://github.com/user-attachments/assets/248d928c-589a-4866-afce-5c52c7fa9801)
 
+- Now Install Grafana with helm charts.
+- Just like in prometheus, i also create a PV for Grafana. So that when i install the chart it will automatically bound.
+- I also changed couple of things in the values.yaml. Here is what i changed.
+    - To expose the Grafana application outside of your Kubernetes cluster: 
+     ```yaml
+    serviceType: NodePort
+    nodePort: 32091
+    ```
+  - To bound PVC with my PV which it is already created, i need to also edit these part in values.yaml.
+     ```yaml
+     enabled: true
+     storageClassName: local-storage
+     ```
+- After everything is set, install the chart with command:
+```sh
+helm install my-grafana grafana/grafana -f grafana-values.yaml
+```
+- After i login the Grafana with username and password.  I set Prometheus as data source and create common dashboard.
+  ![Ekran görüntüsü 2024-08-11 014500](https://github.com/user-attachments/assets/c4879314-fca3-4c0a-a2cc-a50a202bad8d)
 
+  
 ### Step-2.4 - Deploy Elasticsearch, Kibana, and fluent-bit on K8s for Kubernetes & application logging purposes.
 
 
