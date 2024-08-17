@@ -356,7 +356,7 @@ expression, i didnt use podAffinty feature.
               <appender-ref ref="JSON_FILE"/>
               .....
       ```
-    - I added dependencies to my [Pom XML]([https://github.com/Lastroke/app/blob/develop/src/main/resources/logback.xml](https://github.com/Lastroke/app/blob/develop/pom.xml)) so that logback can run without failure.
+    - I added dependencies to my [Pom XML](https://github.com/Lastroke/app/blob/develop/pom.xml) so that logback can run without failure.
 
 - Now i set logback and also give necessary information to take log to Fluent-bit. My application logs will be in Elastic daily with max size 1GB and will be written asynchronously for performance
   - Fluentbit successfully take the logs from my application log folder
