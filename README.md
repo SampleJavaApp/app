@@ -403,7 +403,7 @@ expression, i didnt use podAffinty feature.
                       - java-app
                   topologyKey: "kubernetes.io/hostname"
       ```
-  ![java pp pods bunu kullan](https://github.com/user-attachments/assets/dcd3ba30-51d9-4d68-8983-d59def157f9e)
+      ![java pp pods bunu kullan](https://github.com/user-attachments/assets/dcd3ba30-51d9-4d68-8983-d59def157f9e)
 
   -
   ```yaml
