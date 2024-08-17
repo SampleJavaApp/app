@@ -198,7 +198,7 @@ expression, i didnt use podAffinty feature.
   ```
   ![Ekran görüntüsü 2024-08-10 203548](https://github.com/user-attachments/assets/248d928c-589a-4866-afce-5c52c7fa9801)
 
-- Now Install Grafana with helm charts.
+- Now Install Grafana with helm chart.
 - Just like in prometheus, i also create a PV for Grafana. So that when i install the chart it will automatically bound.
 - I also changed couple of things in the values.yaml. Here is what i changed. [Grafana Values And PV](https://github.com/Lastroke/app/tree/develop/grafana)
     - To expose the Grafana application outside of your Kubernetes cluster: 
@@ -220,8 +220,66 @@ expression, i didnt use podAffinty feature.
 
   
 ### Step-2.4 - Deploy Elasticsearch, Kibana, and fluent-bit on K8s for Kubernetes & application logging purposes.
-
-
+- I deployed Elasticsearch, Kibana, and fluent-bit on my k8s cluster via Helm Chart. I edit their values.yaml according to my needs.Also you can check ecerything i created for EFK [EFK Stack Files](https://github.com/Lastroke/app/tree/develop/efk) Let me explain the steps: 
+- I created 3 different PV for Elasticsearch because Elasticsearch is a clustered setup to provide redundancy, high availability, and scalability. And default is 3 pods.
+- After that i changed the values.yaml. Heres what i changed [ES Values](https://github.com/Lastroke/app/blob/develop/efk/es-values.yaml):
+  - To access Kibana with authentication i enabled xpack security under esConfig.
+     ```yaml
+        esConfig:
+         elasticsearch.yml: |
+            xpack.security.enabled: true
+            xpack.monitoring.collection.enabled: true
+    ```
+  - To performance and stability for elasticsearch instances, i configure Heap Size
+     ```yaml
+        esJavaOpts: "-Xmx1g -Xms1g"
+     ```
+  - To bound PVC with my PV which it is already created, i need to also edit these part in values.yaml.
+     ```yaml
+     storageClassName: local-storage
+     size: 2Gi
+     ```
+- After everything is set, install the chart with command:
+    ```sh
+    helm install elasticsearch elastic/elasticsearch -f es-values.yaml -n kube-logging
+    ```
+- Next is deploy the Kibana. For Kibana i only edit the values.yaml and install it
+- Heres what i chaged [Kibana Values](https://github.com/Lastroke/app/blob/develop/efk/kibana-values.yaml):
+  - To expose the Kibana application outside of your Kubernetes cluster: 
+     ```yaml
+        serviceType: NodePort
+        nodePort: 30005
+    ```
+  - Because Authenticaiton is enabled for Kibana i gave service account token and password for elastic as Env variables to Kibana. After Elastic 8 username part is no more used. To configure it service token is needed. Thats why icreate service token for user.
+     ```yaml
+         extraEnvs:
+            - name: ELASTICSEARCH_SERVICE_ACCOUNT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: kibana-sa-token
+                key: token
+          - name: ELASTICSEARCH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: kibana-secret
+                key: password
+    ```
+  - I configure Kibana config to use right host and data to connect Elasticsearch
+     ```yaml
+        kibanaConfig: 
+          kibana.yml: |
+            server.host: "0.0.0.0"
+            elasticsearch.hosts: ["http://elasticsearch-master:9200"]
+            elasticsearch.serviceAccountToken: "${ELASTICSEARCH_SERVICE_ACCOUNT_TOKEN}"
+            elasticsearch.password: "${ELASTICSEARCH_PASSWORD}"
+     ```
+- After everything is set, install the chart with command:
+    ```sh
+        helm install kibana elastic/kibana -n kube-logging -f kibana-values.yaml
+    ```
+![elastic giriş ekranı](https://github.com/user-attachments/assets/f19150f4-e5b9-4702-a2aa-c387d8d3527a)
+Here you can see auth method is enabled and can log in.
+![Ekran görüntüsü 2024-08-13 161022](https://github.com/user-attachments/assets/988c941c-c8b7-46cc-a2a4-f9a3dcc9b378)
 
 ## Step-3
 
