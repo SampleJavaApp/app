@@ -182,7 +182,7 @@ expression, i didnt use podAffinty feature.
 ### Step-2.3 - Deploy Prometheus & Grafana on K8s for Kubernetes and application monitoring purposes
 - Just like Jenkins, i also use Helm Charts to deploy Prometheus and Grafana.
 - First i created 2 PV for prometheus-server itself and prometheus-alert. So that when i install the chart it will automatically bound.
-- I also changed couple of things in the values.yaml. Here is what i changed.
+- I also changed couple of things in the values.yaml. Here is what i changed.  [Prometheus Values And PV](https://github.com/Lastroke/app/tree/develop/prometheus)
   - To expose the Prometheus application outside of your Kubernetes cluster: 
      ```yaml
     serviceType: NodePort
@@ -200,21 +200,21 @@ expression, i didnt use podAffinty feature.
 
 - Now Install Grafana with helm charts.
 - Just like in prometheus, i also create a PV for Grafana. So that when i install the chart it will automatically bound.
-- I also changed couple of things in the values.yaml. Here is what i changed.
+- I also changed couple of things in the values.yaml. Here is what i changed. [Grafana Values And PV](https://github.com/Lastroke/app/tree/develop/grafana)
     - To expose the Grafana application outside of your Kubernetes cluster: 
-     ```yaml
-    serviceType: NodePort
-    nodePort: 32091
-    ```
+         ```yaml
+        serviceType: NodePort
+        nodePort: 32091
+        ```
   - To bound PVC with my PV which it is already created, i need to also edit these part in values.yaml.
      ```yaml
      enabled: true
      storageClassName: local-storage
      ```
 - After everything is set, install the chart with command:
-```sh
-helm install my-grafana grafana/grafana -f grafana-values.yaml
-```
+    ```sh
+    helm install my-grafana grafana/grafana -f grafana-values.yaml
+    ```
 - After i login the Grafana with username and password.  I set Prometheus as data source and create common dashboard.
   ![Ekran görüntüsü 2024-08-11 014500](https://github.com/user-attachments/assets/c4879314-fca3-4c0a-a2cc-a50a202bad8d)
 
