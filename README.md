@@ -389,21 +389,21 @@ expression, i didnt use podAffinty feature.
 ### Step-3.2
 - So lets take look at closer to my [Deployment Manifest](https://github.com/Lastroke/app/blob/develop/java-app/deployment.yaml)
   - As requested from the task replica is set to 4 and in order to make sure pods are distributed equally across nodes podAntiAffinity is used. Why i choose preferred and not required because if requiredDurinScheduling is use only to pod will placed to node-1 and node-2 then it wont schedule anymore because the two nodes get already 1 pod. Thats why i use prefereed one. I set to weight: 100 to let scheduler knows its very important. So with that configuration 2 pods will be in node-1 and 2 will be node-2.
-  ```yaml
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - java-app
-              topologyKey: "kubernetes.io/hostname"
-  ```
-      ![java pp pods bunu kullan](https://github.com/user-attachments/assets/dcd3ba30-51d9-4d68-8983-d59def157f9e)
+      ```yaml
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                      - java-app
+                  topologyKey: "kubernetes.io/hostname"
+      ```
+  ![java pp pods bunu kullan](https://github.com/user-attachments/assets/dcd3ba30-51d9-4d68-8983-d59def157f9e)
 
   -
   ```yaml
