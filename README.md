@@ -525,7 +525,7 @@ expression, i didnt use podAffinty feature.
 ### Step-4.1
 #### Our cluster has a limited number of nodes, and we can't scale them. 2 different apps are running on these nodes. While App X is running in real-time, App Y is an application that manages batch jobs and can be killable. How would you scale App X under heavy load
 
-- To scale App X under heavy load while managing limited resources, Horizontal Pod Autoscaler (HPA) can be configured for App X. According to CPU utilization or custom metric, HPA will automatically scale the number of replicas for App X. Since App Y is managing batch jobs and is killable, PodDisruptionBudget can be used to allow Kubernetes to evict pods of App Y when needed to free up resources for App X.
+- To scale App X under heavy load while managing limited resources, Horizontal Pod Autoscaler (HPA) can be configured for App X. According to CPU utilization or custom metric, HPA will automatically scale the number of replicas for App X. Since App Y is managing batch jobs and is killable, PodDisruptionBudget can be used to allow Kubernetes to evict pods of App Y when needed to free up resources for App X. 
     ```yaml
         apiVersion: autoscaling/v2
         kind: HorizontalPodAutoscaler
@@ -559,7 +559,8 @@ expression, i didnt use podAffinty feature.
               app: app-y
 
     ```
-- If we look at the example above App X can be scale up to 10 replicas if CPU usage goes above 50%. And App Y can scale down to 1 pod to free up resources
+- If we look at the example above App X can be scale up to 10 replicas if CPU usage goes above 50%. And App Y can scale down to 1 pod to free up resources.
+  Note: If CPU does not go up that much under heavy load, we can use **custom metrics** that we defined. For example we can collect it from Prometheus.
 
 ### Step-4.2
 #### What would you do if you were to have canary deployments? Which tool would you use? How would you manage it through the pipeline?
@@ -575,7 +576,7 @@ expression, i didnt use podAffinty feature.
 ### Step-4.3
 #### How would you ensure the application scales out/in appropriately before/after a specific time?
 
-- We already know that **Horizontal Pod Autoscaler** is used to scale up/down the applicaiton based on metrics CPU or memory usage.
+- We already know that **Horizontal Pod Autoscaler** is used to scale up/down the applicaiton based on metrics CPU, memory usage or custom metrics we defined.
 - But it can be combined with scheduled scaling such as **CronJob**.
 - If we know the specific times, CronJob can be scheduled and triggers a script to increase min/max replica of our HPA or directly increase replica of the Deployment.
 - We can also create a CronJob for after higher traffic times in order to scale down our Application.
