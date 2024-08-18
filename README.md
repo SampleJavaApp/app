@@ -49,6 +49,7 @@
             EXPOSE 9001
             CMD ["java", "-jar", "app.jar"]
         ```
+        Note: If arguments needs to pass into the container, Entrypoint also should be use instead of CMD. Because passing arguments is needed for this java application. I choose to use CMD
 - Here is the [Dockerfile](https://github.com/Lastroke/app/blob/develop/Dockerfile)
 
 ## Step-2
