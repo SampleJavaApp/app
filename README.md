@@ -574,15 +574,15 @@ expression, i didnt use podAffinty feature.
 ### Step-4.3
 #### How would you ensure the application scales out/in appropriately before/after a specific time?
 
-- We already know that Horizontal Pod Autoscaler is used to scale up/down the applicaiton based on metrics CPU or memory usage.
-- But it can be combined with scheduled scaling such as CronJob.
+- We already know that **Horizontal Pod Autoscaler** is used to scale up/down the applicaiton based on metrics CPU or memory usage.
+- But it can be combined with scheduled scaling such as **CronJob**.
 - If we know the specific times, CronJob can be scheduled and triggers a script to increase min/max replica of our HPA or directly increase replica of the Deployment.
 - We can also create a CronJob for after higher traffic times in order to scale down our Application.
-- Other option is also creating a custome time based metric for HPA. So that HPA will scale deployment accordingt to time based metric.
+- Other option is also creating a **custom time based metric** for HPA. So that HPA will scale deployment accordingt to time based metric.
   
 #### You noticed that there are not enough nodes on the cluster. How would you increase the number of nodes before specific times without slowing down the system?
 
-- For this purposes Cluster Autoscaling can be used. We can adjust the amount of resources available in the cluster automatically.
+- For this purposes **Cluster Autoscaling** can be used. We can adjust the amount of resources available in the cluster automatically.
 -  With Cluster Autoscaling we can either change number of nodes which is horizontal scaling or we can change the capacity of nodes which is vertical scaling.
 - In Our case we want to increase the nodes number.
 - When the cluster lacks of resources, Cluster Autoscaler automatically add new nodes.
