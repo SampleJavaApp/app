@@ -558,4 +558,9 @@ expression, i didnt use podAffinty feature.
 
 ### Step-4.2
 - As a tool i would use **Argo Rollouts** because it’s a Kubernetes controller that provides deployment capabilities, not only canary, but also blue-green. It integrates well with existing CI/CD pipelines and can automate the promotion or rollback of releases based on metrics.
-- 
+- Argo Rollout plugin also need to be install so we can use argo rollout command with kubectl.
+- I would create Rollout Template and define canary as strategy and define steps. For example steps can be defined as increment canary weight 10% every 10 minutes until it reach 100%.
+- Also Analysis Template should be created. With Analysis Template we can define success and failure condition for our canary deployment.
+- Metrics can be collect from Prometheus and Prometheus can be use as query provider in the template.
+- If success conditions are not met, Automatic Rollback is started and it will rolback to previous stable version.
+- I would allow only in master/production branch to perform canary deployment in Pipeline stage. Simple when { branch master/production} will be enough in the stage. And to watch rollout i would use this command kubectl argo rollouts get rollout my-app-rollout --watch
