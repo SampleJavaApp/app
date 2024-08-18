@@ -520,6 +520,8 @@ expression, i didnt use podAffinty feature.
 ## Step-4
 
 ### Step-4.1
+#### Our cluster has a limited number of nodes, and we can't scale them. 2 different apps are running on these nodes. While App X is running in real-time, App Y is an application that manages batch jobs and can be killable. How would you scale App X under heavy load
+
 - To scale App X under heavy load while managing limited resources, Horizontal Pod Autoscaler (HPA) can be configured for App X. According to CPU utilization or custom metric, HPA will automatically scale the number of replicas for App X. Since App Y is managing batch jobs and is killable, PodDisruptionBudget can be used to allow Kubernetes to evict pods of App Y when needed to free up resources for App X.
     ```yaml
         apiVersion: autoscaling/v2
@@ -557,6 +559,8 @@ expression, i didnt use podAffinty feature.
 - If we look at the example above App X can be scale up to 10 replicas if CPU usage goes above 50%. And App Y can scale down to 1 pod to free up resources
 
 ### Step-4.2
+#### What would you do if you were to have canary deployments? Which tool would you use? How would you manage it through the pipeline?
+
 - As a tool i would use **Argo Rollouts** because it’s a Kubernetes controller that provides deployment capabilities, not only canary, but also blue-green. It integrates well with existing CI/CD pipelines and can automate the promotion or rollback of releases based on metrics.
 - Argo Rollout plugin also need to be install so we can use argo rollout command with kubectl.
 - I would create Rollout Template and define canary as strategy and define steps. For example steps can be defined as increment canary weight 10% every 10 minutes until it reach 100%.
@@ -564,3 +568,21 @@ expression, i didnt use podAffinty feature.
 - Metrics can be collect from Prometheus and Prometheus can be use as query provider in the template.
 - If success conditions are not met, Automatic Rollback is started and it will rolback to previous stable version.
 - I would allow only in master/production branch to perform canary deployment in Pipeline stage. Simple when { branch master/production} will be enough in the stage. And to watch rollout i would use this command kubectl argo rollouts get rollout my-app-rollout --watch
+
+### Step-4.3
+#### How would you ensure the application scales out/in appropriately before/after a specific time?
+
+- We already know that Horizontal Pod Autoscaler is used to scale up/down the applicaiton based on metrics CPU or memory usage.
+- But it can be combined with scheduled scaling such as CronJob.
+- If we know the specific times, CronJob can be scheduled and triggers a script to increase min/max replica of our HPA or directly increase replica of the Deployment.
+- We can also create a CronJob for after higher traffic times in order to scale down our Application.
+- Other option is also creating a custome time based metric for HPA. So that HPA will scale deployment accordingt to time based metric.
+  
+#### You noticed that there are not enough nodes on the cluster. How would you increase the number of nodes before specific times without slowing down the system?
+
+- For this purposes Cluster Autoscaling can be used. We can adjust the amount of resources available in the cluster automatically.
+-  With Cluster Autoscaling we can either change number of nodes which is horizontal scaling or we can change the capacity of nodes which is vertical scaling.
+- In Our case we want to increase the nodes number.
+- When the cluster lacks of resources, Cluster Autoscaler automatically add new nodes.
+- And when the nodes have little or no workload, Cluster Autoscaler remove the nodes.
+- Also it is well integrated with Cloud Providers.
