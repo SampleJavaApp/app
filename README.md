@@ -505,6 +505,8 @@ expression, i didnt use podAffinty feature.
         openssl req -new -key webhook-certs/server.key -subj "/CN=webhook-server.default.svc" -out webhook-certs/server.csr -config webhook-certs/san.cnf
         openssl x509 -req -in webhook-certs/server.csr -CA webhook-certs/ca.crt -CAkey webhook-certs/ca.key -CAcreateserial -out webhook-certs/server.crt -days 60 -extensions v3_req -extfile webhook-certs/san.cnf
 
+      kubectl create secret tls webhook-certs --cert=webhook-certs/server.crt --key=webhook-certs/server.key
+
     ```
 - After that i create a Validating Webhook Configuration file and configure webhook in it.
   - It will validate only the Deployments creations or update nothing else.
