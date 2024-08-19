@@ -361,8 +361,9 @@ expression, i didnt use podAffinty feature.
     - I added dependencies to my [pom.xml](https://github.com/Lastroke/app/blob/develop/pom.xml) so that logback can run without failure.
 
 - Now i configured Logback and also provided necessary information to take log to Fluent-bit. My application logs will be in Elastic daily with max size 1GB and will be written asynchronously for performance
-  - Fluent-bit successfully collected the logs from my application log folder
-    ![fluentbit pod logs önemli](https://github.com/user-attachments/assets/672aaefe-014f-44d1-8954-95d27fa8f106)
+  - Here you can see application is creating logs.
+    ![logback inputs](https://github.com/user-attachments/assets/451ff799-f884-419f-9ad4-1bee19c45910)
+
 
   - And Here you can see the index and you can see that its daily
       ![çok önemli,](https://github.com/user-attachments/assets/3b82b7f1-fa1b-42b2-8bfa-a300dc929cf6)
